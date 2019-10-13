@@ -4,33 +4,20 @@
             <div class="slds-text-align_center slds-p-around_small slds-text-heading_medium">
                 <slot name="header">{header}</slot>
             </div>
-            <lightning-progress-indicator type={_progressIndicatorType} has-error={hasError}
-                variant={_progressIndicatorVariant} current-step={currentStep}>
-                <template for:each={_steps} for:item="step">
+            <lightning-progress-indicator type={progressIndicatorType} has-error={hasError}
+                variant={progressIndicatorVariant} current-step={currentStep}>
+                <template for:each={flow} for:item="step">
                     <lightning-progress-step key={step.name} label={step.label} value={step.name}></lightning-progress-step>
                 </template>
             </lightning-progress-indicator>
-        </div>
 
-        <template if:true={_hasError}>
-            <div class="slds-container_fluid slds-theme_error">
-                <span>{_errorMessages}</span>
-            </div>
-        </template>
-
-        <div id="content" class="slds-card__body slds-p-around_medium" onstepregistered={registerStep}>
-            <slot></slot>
-        </div>
-
-        <div id="actions" class="slds-card__footer slds-grid">
-            <lightning-button if:false={_isFirst} class="slds-col slds-text-align_left" label={previousLabel}
-                variant="neutral" onclick={previousStep}></lightning-button>
-            <div class="slds-col slds-col_bump-left slds-text-align_right">
-                <div class="slds-button-group">
-                    <slot name="actions" onactionregistered={registerAction}></slot>
-                    <lightning-button label={_nextLabel} variant="brand" onclick={nextStep}></lightning-button>
+            <template if:true={hasError}>
+                <div class="slds-container_fluid slds-theme_error">
+                    <span>{_errorMessages}</span>
                 </div>
-            </div>
+            </template>
         </div>
+
+        <slot onslotchange={slotChange} onstepregistered={registerStep}></slot>
     </div>
 </template>

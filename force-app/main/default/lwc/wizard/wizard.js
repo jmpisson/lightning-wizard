@@ -8,7 +8,9 @@ export default class Wizard extends LightningElement {
     @api nextLabel = 'Next';
     @api finishLabel = 'Finish';
     @api header = '';
-    @api get currentStep(){
+
+    @track _currentStep = null;
+    @api get currentStep() {
         return this._currentStep;
     }
 
@@ -21,70 +23,44 @@ export default class Wizard extends LightningElement {
     // #endregion
 
     // #region Tracked Properties
-    @track _steps = [];    
-    @track _currentStep = null;
-    @track _hasError = false;
-    @track _errorMessages = '';
-    @track _actions = [];
+
+    @track steps = {};
+    @track hasError = false;
+    @track errorMessages = '';
+    @track flow = [];
 
     // #endregion
 
     // #region Non-tracked Properties
-    _isInit = false;
-    _stepIndexesByName = {};
-    _progressIndicatorType = 'base';
-    _progressIndicatorVariant = 'base';
 
-    get _isFirst() {
-        return this._stepIndexesByName[this._currentStep] === 0;
-    }
+    isInit = false;
+    progressIndicatorType = 'base';
+    progressIndicatorVariant = 'base';
 
-    get _nextLabel() {
-        return this._stepIndexesByName[this._currentStep] === (this._steps.length - 1)?
-            this.finishLabel    
-            :this.nextLabel;
-    }
     //#endregion
 
     // #region LWC Licecycle Callbacks
 
     connectedCallback() {
-        // 1 - Initialization
         this.init();
     }
 
     errorCallback(error, stack) {
-        this._hasError = true;
-        this._errorMessages = error + ' ' + stack;
+        this.hasError = true;
+        this.errorMessages = error + ' ' + stack;
     }
 
     // #endregion
 
-    // #region Private Methods
+    // #region Event Handlers
 
     /**
-     * Initializes the component
+     * Handles changes on the slot body, which allows to configure the internal component stated base
+     * on the c-wizard-step children.
      */
-    init() {
-        if(this._isInit) {
-            return;
-        }
-
-        this._isInit = true;
-
-        switch(this.variant) {
-            case 'base-shaded':
-                this._progressIndicatorVariant = 'shaded';
-                this._progressIndicatorType = 'base';
-                break;
-            case 'path':
-                this._progressIndicatorVariant = 'base';
-                this._progressIndicatorType = 'path';
-                break;
-            default:
-                this._progressIndicatorVariant = 'base';
-                this._progressIndicatorType = 'base';      
-        }
+    slotChange() {
+        this.configSteps();
+        this.setActiveStep();
     }
 
     /**
@@ -97,60 +73,57 @@ export default class Wizard extends LightningElement {
     * @param {Fuction} event.detail.methods.setActive Marks the step as current
     */
     registerStep(event) {
-        this._steps.push(event.detail);
-        this._stepIndexesByName[event.detail.name] = this._steps.length -1;
-        
-        if(!this._currentStep || this._currentStep === event.detail.name) {
-            this._currentStep = event.detail.name;
-            this.setActiveStep();
-        }
-    }
-    /**
-    * Register the wizard custom actions defined in its markup. An action could be global, or apply only to user-defined steps.
-    * 
-    * @param {CustomEvent} event
-    * @param {Object} event.detail
-    * @param {String|String[]} event.detail.for Defines a list of steps on which this action will be available
-    * @param {Object} event.detail.methods WizardAction Private API
-    * @param {Fuction} event.detail.methods.setActive Enables the action for its use in the current step. See c-wizard-action for details
-    */
-    registerAction(event) {
-        this._actions.push(event.detail);
-        this.setActiveActions();
-    }
+        var step = event.detail;
+        this.steps[event.detail.name] = step;
 
-    /**
-     * Moves to the next step, if available, and executes the customer-defined beforeChange hook of the current step.
-     * If the beforeChange promise is resolve with a falsy value, the wizard stops at current step.
-     * If the wizard is in its final step, dispatch the complete event.
-     */
-    async nextStep() {
-        var currentStepIndex = this._stepIndexesByName[this._currentStep];
-
-        this._hasError = !(await this.beforeChange(this._steps[currentStepIndex]));        
-        
-        if(!this._hasError) {
-            let nextStep = this._steps[currentStepIndex + 1];
-                
-            if(nextStep) {
-                this.setActiveStep(nextStep.name);
-            } else {
-                this.dispatchEvent(new CustomEvent('complete'));
+        step.methods.config({
+            labels: {
+                next: this.nextLabel,
+                previous: this.previousLabel,
+                finish: this.finishLabel
+            },
+            callbacks: {
+                unregister: this.unregisterStep.bind(this),
+                move: this.moveStep.bind(this)
             }
+        });
+    }
+    // #endregion
+
+    // #region Private Methods
+
+    /**
+     * Initializes the component, applying the global style.
+     */
+    init() {
+        if (this.isInit) {
+            return;
+        }
+
+        this.isInit = true;
+
+        switch (this.variant) {
+            case 'base-shaded':
+                this.progressIndicatorVariant = 'shaded';
+                this.progressIndicatorType = 'base';
+                break;
+            case 'path':
+                this.progressIndicatorVariant = 'base';
+                this.progressIndicatorType = 'path';
+                break;
+            default:
+                this.progressIndicatorVariant = 'base';
+                this.progressIndicatorType = 'base';
         }
     }
 
     /**
-     * Moves to the previous step, if available. 
-     */
-    previousStep() {
-        var currentStepIndex = this._stepIndexesByName[this._currentStep];
-
-        if(currentStepIndex > 0) {
-            let previousStep = this._steps[currentStepIndex - 1];
-            
-            this.setActiveStep(previousStep.name);
-        }
+    * Unregister a wizard step defined in component template
+    * 
+    * @param {String} Step name
+    */
+    unregisterStep(stepName) {
+        delete this.steps[stepName];
     }
 
     /**
@@ -161,9 +134,9 @@ export default class Wizard extends LightningElement {
     setActiveStep(stepName) {
         var self = this;
 
-        if(stepName) {
-            this.dispatchEvent(new CustomEvent('change', {
-                detail:{
+        if (stepName) {
+            self.dispatchEvent(new CustomEvent('change', {
+                detail: {
                     oldStep: self._currentStep,
                     currentStep: stepName
                 }
@@ -172,28 +145,62 @@ export default class Wizard extends LightningElement {
             self._currentStep = stepName;
         }
 
-        self.setActiveActions();
-        self._steps.forEach(step => {
+        Object.values(self.steps).forEach(function (step) {
             step.methods.setActive(step.name === self._currentStep);
         });
+
     }
 
-    setActiveActions() {
-        var self = this;
+    /**
+    * Determines the wizard flow based on component body slot
+    */
+    configSteps() {
+        var stepComponents = this.querySelectorAll('c-wizard-step'), self = this;
 
-        self._actions.forEach(function(action) {
-            if(typeof action.forStep === 'string') {
-                action.methods.setActive(
-                    action.forStep === self._currentStep || action.forStep === ''
-                );
-            } else if(action.forStep && typeof(action.forStep.has) === 'function'){
-                action.methods.setActive(
-                    action.forStep.has(self._currentStep)
-                );
-            } else {
-                action.methods.setActive(true);
+        this.flow = Array.prototype.map.call(stepComponents, (step, index) => {
+            self.steps[step.name].methods.config({
+                isFirst: index === 0,
+                isLast: index === (stepComponents.length - 1)
+            })
+
+            return self.steps[step.name];
+        });
+
+        if (!this.currentStep && this.flow) {
+            this.currentStep = this.flow[0].name;
+        }
+    }
+
+    /**
+     * Moves to the next step, if available, and executes the customer-defined beforeChange hook of the current step.
+     * If the beforeChange promise is resolve with a falsy value, the wizard stops at current step.
+     * If the wizard is in its final step, dispatch the complete event.
+     * 
+     * @param {String} direction Direction to move to. Valid values are next/previous 
+     */
+    async moveStep(direction) {
+        let currentStep = this.steps[this._currentStep];
+        let currentStepIndex = this.flow.indexOf(currentStep);
+
+        if (direction === 'next') {
+            this.hasError = !(await this.beforeChange(this.steps[this._currentStep]));
+
+            if (!this.hasError) {
+                let newStep = this.flow[currentStepIndex + 1];
+
+                if (newStep) {
+                    this.setActiveStep(newStep.name);
+                } else {
+                    this.dispatchEvent(new CustomEvent('complete'));
+                }
             }
-        })
+        } else {
+            let newStep = this.flow[currentStepIndex - 1];
+
+            if (newStep) {
+                this.setActiveStep(newStep.name);
+            }
+        }
     }
 
     /**
@@ -205,7 +212,7 @@ export default class Wizard extends LightningElement {
      */
     beforeChange(step) {
         return new Promise((resolve) => {
-            if(!step.beforeChange) {
+            if (!step.beforeChange) {
                 return resolve(true);
             }
 
