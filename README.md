@@ -1,9 +1,2 @@
-# SFDX App
-
-## Dev, Build and Test
-
-## Resources
-
-## Description of Files and Directories
-
-## Issues
+# Salesforce Wizard Component
+<img src="screenshots/create-account-flow.gif" alt="Flow Example"/>
