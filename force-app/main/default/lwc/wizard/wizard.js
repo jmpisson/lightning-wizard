@@ -212,11 +212,11 @@ export default class Wizard extends LightningElement {
      */
     beforeChange(step) {
         return new Promise((resolve) => {
-            if (!step.beforeChange) {
+            if (!step.methods.beforeChange) {
                 return resolve(true);
             }
 
-            return resolve(step.beforeChange());
+            return resolve(step.methods.beforeChange());
         });
     }
 
