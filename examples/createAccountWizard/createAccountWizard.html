@@ -1,0 +1,11 @@
+<template>
+    <c-wizard header="Create Account Flow" variant="path" current-step="step-1" oncomplete={saveAccount}>
+        <c-wizard-step label="Create Account" name="step-1" before-change={validate}>
+            <lightning-input label="Account Name" data-field-name="Name" required></lightning-input>
+            <lightning-input label="Account Type" data-field-name="Type"></lightning-input>
+        </c-wizard-step>
+        <c-wizard-step label="Enter Account Details" name="step-2">
+            <lightning-input label="Annual Revenue" type="text" data-field-name="AnnualRevenue"></lightning-input>
+        </c-wizard-step>
+    </c-wizard>
+</template>
