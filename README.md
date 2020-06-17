@@ -9,7 +9,7 @@
             <lightning-input label="Account Name"></lightning-input>
             <lightning-input label="Account Type"></lightning-input>
         </c-wizard-step>
-        <c-wizard-step label="add Contact" name="step-2" before-change={validate} hide-next-button="false">
+        <c-wizard-step label="Add Contact" name="step-2" before-change={validate} hide-next-button="false">
             <lightning-input label="Name"></lightning-input>
             <lightning-input label="Title"></lightning-input>
 
@@ -112,5 +112,5 @@ The complete event properties are as follows.
 
 |       Name      |  Description    |                                             
 |:---------------:|:---------------:|
-|      actions     | Placeholder for actionable components on the step such as lightning-button. The components are positiones next to Next button. Overrides the header attribute set on the component.|
+|      actions     | Placeholder for actionable components on the step such as lightning-button. The components are positioned next to Next button. Overrides the header attribute set on the component.|
 |      default     | Placeholder for step content.|

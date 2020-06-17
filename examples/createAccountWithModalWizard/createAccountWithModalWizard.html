@@ -1,0 +1,37 @@
+<template>
+    <c-wizard header="Create Account Flow" variant="path" current-step="step-1" oncomplete={saveAccount}>
+        <c-wizard-step label="Create Account" name="step-1" hide-next-button>
+            <lightning-input label="Account Name" data-field-name="Name" required></lightning-input>
+            <lightning-input label="Account Type" data-field-name="Type"></lightning-input>
+
+            <!-- MODAL -->
+            <template if:true={isModalShown}>
+                <section role="dialog" tabindex="-1" aria-labelledby="modal-heading" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                    <div class="slds-modal__container">
+                      <header class="slds-modal__header">
+                        <lightning-button-icon class="slds-modal__close" variant="inverse" icon-name="close" onclick={closeModal}></lightning-button-icon>
+                        <h2 id="modal-heading" class="slds-modal__title slds-hyphenate">Enter Account Revenue</h2>
+                      </header>
+
+                      <div class="slds-modal__content slds-p-around_medium" id="modal-content">
+                        <lightning-input label="Account Revenue" data-field-name="AnnualRevenue"></lightning-input>
+                      </div>
+
+                      <footer class="slds-modal__footer slds-modal__footer_directional">
+                        <lightning-button label="Continue" onclick={next}></lightning-button>
+                      </footer>
+                    </div>
+                  </section>
+                  <div class="slds-backdrop slds-backdrop_open"></div>
+            </template>
+            <!-- / MODAL -->
+
+            <!-- CUSTOM ACTIONS -->
+            <lightning-button label="Next" variant="brand" slot="actions" onclick={openModal}></lightning-button>
+            <!-- / CUSTOM ACTIONS -->
+        </c-wizard-step>
+        <c-wizard-step label="Enter Account Details" name="step-2">
+            <lightning-input label="Annual Revenue" type="text" data-field-name="AnnualRevenue"></lightning-input>
+        </c-wizard-step>
+    </c-wizard>
+</template>
