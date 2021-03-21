@@ -83,6 +83,11 @@ export default class CreateAccountWithModalWizard extends NavigationMixin(Lightn
         this.isModalShown = false;
     }
 
+    /**
+     * Validates the form and goes to the next step
+     * 
+     * @author jmpisson
+     */
     next() {
         if(this.validate()) {
             this.template.querySelector('c-wizard').currentStep = 'step-2';

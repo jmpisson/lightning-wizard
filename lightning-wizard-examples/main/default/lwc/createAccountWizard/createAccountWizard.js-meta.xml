@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata" fqn="testLWCWizard">
-    <apiVersion>48.0</apiVersion>
-    <isExposed>true</isExposed>
-    <targets>
-    <target>lightning__HomePage
-    </target>
-    </targets>
-    
+    <apiVersion>51.0</apiVersion>
+    <isExposed>false</isExposed>
 </LightningComponentBundle>

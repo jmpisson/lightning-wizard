@@ -1,0 +1,40 @@
+{
+    "compilerOptions": {
+        "experimentalDecorators": true,
+        "baseUrl": ".",
+        "paths": {
+            "c/autocompleteCombobox": [
+                "autocompleteCombobox/autocompleteCombobox.js"
+            ],
+            "c/lwc2Pdf": [
+                "lwc2Pdf/lwc2Pdf.js"
+            ],
+            "c/testLWCWizard": [
+                "testLWCWizard/testLWCWizard.js"
+            ],
+            "c/wizard": [
+                "wizard/wizard.js"
+            ],
+            "c/wizardAction": [
+                "wizardAction/wizardAction.js"
+            ],
+            "c/wizardStep": [
+                "wizardStep/wizardStep.js"
+            ]
+        }
+    },
+    "include": [
+        "**/*",
+        "../../../../.sfdx/typings/lwc/**/*.d.ts"
+    ],
+    "typeAcquisition": {
+        "include": [
+            "jest"
+        ]
+    },
+    "paths": {
+        "c/*": [
+            "*"
+        ]
+    }
+}
