@@ -13,7 +13,7 @@
             <lightning-input label="Name"></lightning-input>
             <lightning-input label="Title"></lightning-input>
 
-            <lightning-button slot="actions" label="Skip" onclick={skipCreateContact}>
+            <lightning-button slot="actions" label="Skip" onclick={skipCreateContact}></lightning-button>
         </c-wizard-step>
         <template if:true={shouldSync}>
             <c-wizard-step label="Sync with another system" name="step-3">
